@@ -171,3 +171,40 @@ def test_class_method() :
     ])
     assert ast_str == EXPECTED
     
+def test_scope_closure() :
+    ast_str = scan_and_parse(content="""
+        var a = "global";
+        {
+            fun showA() {
+                print a;
+            }
+
+                showA();
+                var a = "block";
+                showA();
+        }
+    """)
+    token_a = Token(type = 'IDENTIFIER', lexeme='a', literal=None)
+    token_showA = Token('IDENTIFIER', 'showA', 'None')
+    var_showA = Expr.Variable(token_showA)
+     
+    EXPECTED =  AstPrinter().stringfyTree([
+        Stmt.Var(
+            token=token_a,
+            initializer=Expr.Literal('global')
+        ),
+        Stmt.Block([
+            Stmt.Function(
+                token=token_showA,
+                params=[],
+                body=[Stmt.Print(Expr.Variable(token_a))]
+            ),
+            Stmt.Expression(Expr.Call(callee=var_showA, paren=Token('LEFT_PAREN', '(', None),arguments=[])),
+            Stmt.Var(
+                token=token_a,
+                initializer=Expr.Literal('block')
+            ),
+            Stmt.Expression(Expr.Call(callee=var_showA, paren=Token('LEFT_PAREN', '(', None),arguments=[]))
+        ])
+    ])
+    assert ast_str == EXPECTED

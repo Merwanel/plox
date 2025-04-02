@@ -92,6 +92,17 @@ def test_19() :
     tokens = tokenize(content='and')
     EXPECTED = ['AND and None','EOF  None']
     assert tokens == EXPECTED
+def test_addition() :
+    tokens = tokenize(content="""
+        var a = 5 ;
+        var b = 6 ;
+        var c = a + b ;
+        print a ;
+    """)
+    EXPECTED = ['VAR var None','IDENTIFIER a None','EQUAL = None','NUMBER 5 5.0','SEMICOLON ; None','VAR var None','IDENTIFIER b None',
+                'EQUAL = None','NUMBER 6 6.0','SEMICOLON ; None','VAR var None','IDENTIFIER c None','EQUAL = None','IDENTIFIER a None',
+                'PLUS + None','IDENTIFIER b None','SEMICOLON ; None','PRINT print None','IDENTIFIER a None','SEMICOLON ; None','EOF  None',]
+    assert tokens == EXPECTED
 
 def test_20() :
     tokens = tokenize(content="""var a = 9 ;
@@ -166,4 +177,24 @@ def test_22() :
         ,'RIGHT_PAREN ) None','DOT . None','IDENTIFIER eat None','LEFT_PAREN ( None'
         , 'RIGHT_PAREN ) None','SEMICOLON ; None','EOF  None'
     ]
+    assert tokens == EXPECTED
+def test_scope_closure() :
+    tokens = tokenize(content="""
+        var a = "global";
+        {
+            fun showA() {
+                print a;
+            }
+
+                showA();
+                var a = "block";
+                showA();
+        }
+    """)
+    EXPECTED = ['VAR var None','IDENTIFIER a None','EQUAL = None','STRING "global" global','SEMICOLON ; None',
+                'LEFT_BRACE { None','FUN fun None','IDENTIFIER showA None','LEFT_PAREN ( None','RIGHT_PAREN ) None',
+                'LEFT_BRACE { None','PRINT print None','IDENTIFIER a None','SEMICOLON ; None','RIGHT_BRACE } None',
+                'IDENTIFIER showA None','LEFT_PAREN ( None','RIGHT_PAREN ) None','SEMICOLON ; None','VAR var None',
+                'IDENTIFIER a None','EQUAL = None','STRING "block" block','SEMICOLON ; None','IDENTIFIER showA None',
+                'LEFT_PAREN ( None','RIGHT_PAREN ) None','SEMICOLON ; None','RIGHT_BRACE } None','EOF  None',]
     assert tokens == EXPECTED

@@ -365,3 +365,22 @@ def test_Native_Array1() :
     assert len(ast_str) == 2 
     assert type(ast_str[1]) == float
     assert ast_str[1] < 1 
+
+
+
+
+def test_scope_closure() :
+    ast_str = scan_and_parse_and_interpret(content="""
+        var a = "global";
+        {
+            fun showA() {
+                print a;
+            }
+
+                showA();
+                var a = "block";
+                showA();
+        }
+    """)
+    EXPECTED =['global', 'global']
+    assert ast_str == EXPECTED
